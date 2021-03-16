@@ -1,113 +1,58 @@
 package com.coder.thehyper
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface(color = Color.Green) {
-                loadUI()
-            }
 
-        }
-    }
+            val state = rememberScaffoldState()
+            val coroutineScope = rememberCoroutineScope()
 
-    @Composable
-    fun loadUI() {
-
-        val memoryData = remember { mutableStateOf(MemoryData()) }
-        memoryData.value = listOfMemories()[0]
-
-        val quoteSize = remember { mutableStateOf(15) }
-
-        Column(modifier = Modifier.fillMaxHeight()) {
-
-            TopAppBar(title = { Text(text = "Memory Book") })
-            Card(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()
-                    .shadow(5.dp)
-            ) {
-                Row() {
-                    Text(
-                        text = "Life of THE HYPER CODER",
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(all = 10.dp)
-                    )
-
-                    Button(
-                        onClick = {
-                            when {
-                                listOfMemories().indexOf(memoryData.value) == listOfMemories().size - 1 -> {
-                                    memoryData.value = listOfMemories()[0]
-                                }
-                                else -> {
-                                    memoryData.value =
-                                        listOfMemories()[listOfMemories().indexOf(memoryData.value) + 1]
+            Surface() {
+                Scaffold(
+                    scaffoldState = state,
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(text = "Navigation Demo") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    coroutineScope.launch { state.drawerState.open() }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = null)
                                 }
                             }
-                        },
-                        modifier = Modifier
-                            .padding(all = 10.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(text = "Change", color = Color.White)
+                        )
+                    },
+                    drawerShape = RoundedCornerShape(topEnd = 23.dp, bottomEnd = 23.dp),
+                    drawerContent = { NavDrawer(state, coroutineScope) },
+                    content = {
+                        Image(
+                            painter = painterResource(id = R.drawable.pic0),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            contentScale = ContentScale.Crop
+                        )
                     }
-
-                }
-            }
-
-            Card(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()
-                    .shadow(5.dp)
-            ) {
-                Column {
-                    Image(
-                        painter = painterResource(id = memoryData.value.aImageRes),
-                        contentDescription = null
-                    )
-                    Text(
-                        text = memoryData.value.aQuoute,
-                        modifier = Modifier.padding(5.dp),
-                        color = Color.DarkGray,
-                        fontSize = quoteSize.value.sp
-                    )
-                }
-            }
-
-            Button(
-                onClick = { quoteSize.value = quoteSize.value + 1 }, modifier = Modifier
-                    .padding(all = 10.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Increase Font Size", color = Color.White)
+                )
             }
         }
     }
